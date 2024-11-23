@@ -57,7 +57,6 @@ void UWeaponSystemComponent::EquipNewWeapon()
 		
 		WeaponClass = WeaponClasses[WeaponIndex];
 		CurrentWeapon = WeaponClass->GetDefaultObject<ABaseWeapon>();
-
 		
 		SpawnWeapon();
 	}

@@ -8,6 +8,7 @@
 
 #include "WeaponSystemComponent.h"
 
+
 #include "WeaponSystemCharacter.generated.h"
 
 class UInputComponent;
@@ -19,6 +20,9 @@ class UInputMappingContext;
 class UWeaponSystemComponent;
 
 struct FInputActionValue;
+
+
+// Enum for weapon states
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 

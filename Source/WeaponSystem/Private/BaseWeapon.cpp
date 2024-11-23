@@ -10,7 +10,10 @@
 #include "Camera/CameraComponent.h"
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
+#include "TimerManager.h"
 
+
+#include "WeaponSystemComponent.h"
 #include "Target.h"
 
 
@@ -27,8 +30,7 @@ ABaseWeapon::ABaseWeapon()
 // Called when the game starts or when spawned
 void ABaseWeapon::BeginPlay()
 {
-	Super::BeginPlay();
-	
+	Super::BeginPlay();	
 }
 
 
@@ -39,6 +41,7 @@ void ABaseWeapon::StopFire()
 
 void ABaseWeapon::StartFire()
 {
+    if (CurrentWeaponState != EWeaponState::READY) return;
     //GetWorld()->GetTimerManager().SetTimer(FireTimerHandle, CurrentWeapon, &ABaseWeapon::StartFire, 0.2f, true);
 
     USkeletalMeshComponent* SkeletalMeshComp = WeaponMesh;
@@ -124,7 +127,17 @@ void ABaseWeapon::StartFire()
     {
         UE_LOG(LogTemp, Error, TEXT("SkeletalMeshComponent not found!"));
     }
+    CountAmmo(123);
+}
 
+void ABaseWeapon::Reload()
+{
+    UE_LOG(LogTemp, Error, TEXT("Reload"));
+}
+
+void ABaseWeapon::GetAmmo()
+{
+    UE_LOG(LogTemp, Error, TEXT("Interface3"));
 }
 
 void ABaseWeapon::MakeDamage(const FHitResult& HitResult)
@@ -138,5 +151,60 @@ void ABaseWeapon::MakeDamage(const FHitResult& HitResult)
 
 }
 
+void ABaseWeapon::CountAmmo(int CurrentAmmo)
+{
+    Ammo -= 1;
+    if (Ammo == 0) return;
+    if (Ammo % ShopSize == 0) {
+        if (!GetWorld()) return;
+        CurrentWeaponState = EWeaponState::RELOADING;
+        GetWorld()->GetTimerManager().SetTimer(
+            FireTimerHandle,
+            [this]() {
+                ChangeWeaponStateTo(EWeaponState::RELOADING);
+            },
+            SpeedOfReloading,     // Timer interval (seconds)
+            false     // Don't loop, since we only want to change the state once
+        );
+    }
+}
+
+void ABaseWeapon::ChangeWeaponStateTo(EWeaponState State)
+{
+    UE_LOG(LogTemp, Error, TEXT("STATE IS CHANGED"));
+    CurrentWeaponState = EWeaponState::READY;
+    if (!GetWorld()) return;
+    GetWorld()->GetTimerManager().ClearTimer(FireTimerHandle);
+}
+
+int ABaseWeapon::GetAmmo() const 
+{
+    return Ammo;
+}
+
+void ABaseWeapon::SetAmmo(int AmmoCount) 
+{
+    Ammo = AmmoCount;
+}
+
+int ABaseWeapon::GetShopSize() const 
+{
+    return ShopSize;
+}
+
+void ABaseWeapon::SetShopSize(int ShopSizeValue) 
+{
+    ShopSize = ShopSizeValue;
+}
+
+float ABaseWeapon::GetSpeedOfReloading() const 
+{
+    return SpeedOfReloading;
+}
+
+void ABaseWeapon::SetSpeedOfReloading(float Speed) 
+{
+    SpeedOfReloading = Speed;
+}
 
 
